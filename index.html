@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy Birthday Akka 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+      background-size: 400% 400%;
+      animation: bgmove 15s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      overflow: hidden;
+      color: white;
+    }
+    @keyframes bgmove {
+      0% {background-position:0% 50%;}
+      50% {background-position:100% 50%;}
+      100% {background-position:0% 50%;}
+    }
+
+    /* Gift box */
+    #gift {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      cursor: pointer;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .box {
+      width: 160px;
+      height: 110px;
+      background: #ff4d6d;
+      position: absolute;
+      bottom: 0;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .lid {
+      width: 160px;
+      height: 55px;
+      background: #ff758f;
+      position: absolute;
+      top: 0;
+      border-radius: 12px 12px 0 0;
+      transform-origin: bottom center;
+      transition: transform 1s cubic-bezier(.68,-0.55,.27,1.55);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+    }
+    #gift p {
+      margin-top: 170px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      animation: blink 1s infinite alternate;
+    }
+    @keyframes blink {from{opacity:1}to{opacity:.5}}
+
+    /* Surprise hidden first */
+    #surprise {display:none;}
+
+    h1 {
+      font-size: 3.5rem;
+      text-shadow: 0 0 15px #fff,0 0 25px #ff4d6d;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: fadeScale 2s forwards;
+    }
+    @keyframes fadeScale {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    canvas {
+      position: fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      pointer-events:none;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Gift box -->
+  <div id="gift">
+    <div class="lid"></div>
+    <div class="box"></div>
+    <p>Tap to Open 🎁</p>
+  </div>
+
+  <!-- Surprise -->
+  <div id="surprise">
+    <h1>Happy Birthday Akka 🎂</h1>
+  </div>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    const gift=document.getElementById("gift");
+    const lid=gift.querySelector(".lid");
+    const surprise=document.getElementById("surprise");
+    const canvas=document.getElementById("confetti");
+    const ctx=canvas.getContext("2d");
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+
+    let confetti=[];
+    function makeConfetti(){
+      for(let i=0;i<250;i++){
+        confetti.push({
+          x:canvas.width/2,
+          y:canvas.height/2,
+          r:Math.random()*6+3,
+          d:Math.random()*3+2,
+          vx:(Math.random()-0.5)*8,
+          vy:(Math.random()-0.5)*8,
+          color:`hsl(${Math.random()*360},100%,50%)`
+        });
+      }
+    }
+    function drawConfetti(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      confetti.forEach(c=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.r,0,2*Math.PI);
+        ctx.fillStyle=c.color;
+        ctx.fill();
+      });
+      confetti.forEach(c=>{
+        c.x+=c.vx;
+        c.y+=c.vy;
+        c.vy+=0.05; // gravity
+        if(c.y>canvas.height) c.y=canvas.height;
+      });
+    }
+    function loopConfetti(){
+      drawConfetti();
+      requestAnimationFrame(loopConfetti);
+    }
+
+    gift.addEventListener("click",()=>{
+      lid.style.transform="rotate(-130deg) translateY(-25px)";
+      setTimeout(()=>{
+        gift.style.display="none";
+        surprise.style.display="block";
+        // Confetti blast
+        canvas.style.display="block";
+        makeConfetti();
+        loopConfetti();
+      },1000);
+    });
+  </script>
+</body>
+</html>
